@@ -3,6 +3,8 @@ package com.hpursan.digicert.library.controller;
 import com.hpursan.digicert.library.domain.Book;
 import com.hpursan.digicert.library.service.BookService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,29 +22,56 @@ import java.util.List;
 public class BookController {
     private final BookService bookService;
 
-    @GetMapping
-    public List<Book> getAllBooks() {
-        return bookService.listAllBooks();
+    @GetMapping("/listBooks")
+    public ResponseEntity<List<Book>> getAllBooks() {
+        try {
+            List<Book> allBooks = bookService.listAllBooks();
+
+            if (allBooks.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(allBooks, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
-    @GetMapping("/{id}")
-    public Book getBookById(@PathVariable("id") Long id){
-        return bookService.getBookById(id);
+    @GetMapping("/getBookById/{id}")
+    public ResponseEntity<Book> getBookById(@PathVariable("id") Long id){
+        try {
+            Book book = bookService.getBookById(id);
+            return new ResponseEntity<>(book, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    @PostMapping
-    public Book addBook(@RequestBody Book book){
-        return bookService.addBook(book);
+    @PostMapping("/addBook")
+    // this is not catering for any sort of duplicate checking. given the id is auto generated,
+    // this wouldn't make sense
+    public ResponseEntity<Book> addBook(@RequestBody Book book){
+        return new ResponseEntity<>(bookService.addBook(book), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public Book updateBook(@PathVariable("id") Long id, @RequestBody Book book){
-        return bookService.updateBook(id, book);
+    @PutMapping("/updateBook/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable("id") Long id, @RequestBody Book book){
+        try {
+            return new ResponseEntity<>(bookService.updateBook(id, book), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteBook(@PathVariable("id") Long id){
-        bookService.deleteBook(id);
+    @DeleteMapping("/deleteBook/{id}")
+    public ResponseEntity<Book> deleteBook(@PathVariable("id") Long id){
+        try {
+            bookService.deleteBook(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 }

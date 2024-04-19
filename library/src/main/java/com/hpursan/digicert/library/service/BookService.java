@@ -18,20 +18,24 @@ public class BookService {
         return bookRepository.findAll();
     }
 
-    public Book getBookById(Long id){
-        return bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Book with id " + id + " not found"));
+    public Book getBookById(Long id) throws Exception {
+        return bookRepository.findById(id).orElseThrow(() -> new Exception("Book with id " + id + " not found"));
     }
 
     public Book addBook(Book book){
         return bookRepository.save(book);
     }
 
-    public Book updateBook(Long id, Book updatedBook) {
-        Book book = getBookById(id);
-        book.setAuthor(updatedBook.getAuthor());
-        book.setIsbn(updatedBook.getIsbn());
-        book.setTitle(updatedBook.getTitle());
-        return bookRepository.save(book);
+    public Book updateBook(Long id, Book updatedBook) throws Exception {
+        try {
+            Book book = getBookById(id);
+            book.setAuthor(updatedBook.getAuthor());
+            book.setIsbn(updatedBook.getIsbn());
+            book.setTitle(updatedBook.getTitle());
+            return bookRepository.save(book);
+        } catch (Exception e) {
+            throw new Exception("Book with id " + id + " not found");
+        }
     }
 
     public void deleteBook(Long id){

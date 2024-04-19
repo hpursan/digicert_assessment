@@ -45,7 +45,9 @@ public class BookServiceTest {
     @Test
     void getBookById_WhenNoBookExists_ShouldThrowBookNotFoundException() {
         when(bookRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(BookNotFoundException.class, () -> bookService.getBookById(1L));
+        BookNotFoundException ex = assertThrows(BookNotFoundException.class, () -> bookService.getBookById(1L));
+
+        assertTrue(ex.getMessage().contains("Book with id 1 not found"));
     }
 
     @Test

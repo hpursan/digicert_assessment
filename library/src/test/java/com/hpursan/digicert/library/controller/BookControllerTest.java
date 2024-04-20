@@ -58,8 +58,7 @@ public class BookControllerTest {
         Book book1 = new Book(1L, "The Shining", "Stephen King", "1234");
         Book book2 = new Book(2L, "IT", "Stephen King", "4567");
 
-        List<Book> bookList = new ArrayList<>();
-        bookList.addAll(Arrays.asList(book1, book2));
+        List<Book> bookList = new ArrayList<>(Arrays.asList(book1, book2));
 
         when(bookService.listAllBooks()).thenReturn(bookList);
 

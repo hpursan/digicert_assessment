@@ -38,7 +38,7 @@ public class BookController {
 
     }
 
-    @GetMapping("/getBookById/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Book> getBookById(@PathVariable("id") Long id){
         try {
             Book book = bookService.getBookById(id);
@@ -48,14 +48,14 @@ public class BookController {
         }
     }
 
-    @PostMapping("/addBook")
+    @PostMapping("/")
     // this is not catering for any sort of duplicate checking. given the id is auto generated,
     // this wouldn't make sense
     public ResponseEntity<Book> addBook(@RequestBody Book book){
         return new ResponseEntity<>(bookService.addBook(book), HttpStatus.CREATED);
     }
 
-    @PutMapping("/updateBook/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable("id") Long id, @RequestBody Book book){
         try {
             return new ResponseEntity<>(bookService.updateBook(id, book), HttpStatus.OK);
@@ -64,7 +64,7 @@ public class BookController {
         }
     }
 
-    @DeleteMapping("/deleteBook/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Book> deleteBook(@PathVariable("id") Long id){
         try {
             bookService.deleteBook(id);

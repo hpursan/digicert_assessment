@@ -76,6 +76,9 @@ public class BookServiceTest {
 
     @Test
     void deleteBook_ShouldCallDeleteById(){
+        Book book = new Book(1L, "ABC", "XYZ", "1234-5678");
+        //when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.existsById(1L)).thenReturn(true);
         bookService.deleteBook(1L);
         verify(bookRepository).deleteById(1L);
     }

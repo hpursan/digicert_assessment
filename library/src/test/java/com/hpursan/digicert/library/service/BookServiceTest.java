@@ -11,6 +11,8 @@ import static org.mockito.Mockito.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,11 +77,51 @@ public class BookServiceTest {
     }
 
     @Test
-    void deleteBook_ShouldCallDeleteById(){
+    void deleteBook_WhenBookExists_ShouldCallDeleteById(){
         Book book = new Book(1L, "ABC", "XYZ", "1234-5678");
-        //when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
         when(bookRepository.existsById(1L)).thenReturn(true);
         bookService.deleteBook(1L);
         verify(bookRepository).deleteById(1L);
     }
+
+    @Test
+    void deleteBook_WhenBookDoesNotExist_ShouldThrowBookNotFoundException(){
+        when(bookRepository.existsById(1L)).thenReturn(false);
+        BookNotFoundException ex = assertThrows(BookNotFoundException.class, () -> bookService.deleteBook(1L));
+
+        assertTrue(ex.getMessage().contains("Book with id 1 not found"));
+    }
+
+    @Test
+    void getBookByTitle_whenExists_ShouldReturnGivenBooks(){
+        Book book1 = new Book(1L, "The Shining", "Stephen King", "1234-5678");
+        Book book2 = new Book(2L, "Shining Girls", "Lauren Beukes", "2343-3423");
+        when(bookRepository.findByTitleContainingIgnoreCase("Shining")).thenReturn(Arrays.asList(book1, book2));
+        List<Book> books = bookService.getBookByTitle("Shining");
+        assertEquals(2, books.size());
+    }
+
+    @Test
+    void getBookByTitle_whenNoneExist_ShouldThrowBookNotFoundException(){
+        when(bookRepository.findByTitleContainingIgnoreCase("Shining")).thenReturn(List.of());
+        BookNotFoundException ex = assertThrows(BookNotFoundException.class, () -> bookService.getBookByTitle("Shining"));
+        assertTrue(ex.getMessage().contains("No books with title containing Shining were found"));
+    }
+
+    @Test
+    void getBookByAuthor_whenExists_ShouldReturnGivenBooks(){
+        Book book1 = new Book(1L, "The Shining", "Stephen King", "1234-5678");
+        Book book2 = new Book(2L, "Carrie", "Stephen King", "2343-3423");
+        when(bookRepository.findByAuthorContainingIgnoreCase("Stephen King")).thenReturn(Arrays.asList(book1, book2));
+        List<Book> books = bookService.getBookByAuthor("Stephen King");
+        assertEquals(2, books.size());
+    }
+
+    @Test
+    void getBookByAuthor_whenNoneExist_ShouldThrowBookNotFoundException(){
+        when(bookRepository.findByAuthorContainingIgnoreCase("Stephen King")).thenReturn(List.of());
+        BookNotFoundException ex = assertThrows(BookNotFoundException.class, () -> bookService.getBookByAuthor("Stephen King"));
+        assertTrue(ex.getMessage().contains("No books with written by author names containing Stephen King were found"));
+    }
+
 }

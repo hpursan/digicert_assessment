@@ -17,8 +17,19 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks() {
-        List<Book> allBooks = bookService.listAllBooks();
+    public ResponseEntity<List<Book>> getAllBooks(
+            @RequestParam(name = "title", required = false) String title,
+            @RequestParam(name = "author" ,required = false) String author) {
+        List<Book> allBooks;
+
+        if (title != null) {
+            allBooks = bookService.getBookByTitle(title);
+        } else if (author != null) {
+            allBooks = bookService.getBookByAuthor(author);
+        } else {
+            allBooks = bookService.listAllBooks();
+        }
+
         return allBooks.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(allBooks);
     }
 

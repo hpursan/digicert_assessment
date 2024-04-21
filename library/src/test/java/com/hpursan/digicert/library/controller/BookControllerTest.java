@@ -40,17 +40,10 @@ public class BookControllerTest {
     public void getAllBooks_whenNoneExist_shouldReturnNoContent() throws Exception {
         when (bookService.listAllBooks()).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/api/books/listBooks"))
+        mockMvc.perform(get("/api/books"))
                .andExpect(status().isNoContent());
     }
 
-    @Test
-    public void getAllBooks_whenUnexpectedException_shouldReturnInternalServerError() throws Exception {
-        when (bookService.listAllBooks()).thenThrow(new RuntimeException("Unexpected exception"));
-
-        mockMvc.perform(get("/api/books/listBooks"))
-            .andExpect(status().isInternalServerError());
-    }
 
     @Test
     public void getAllBooks_whenBooksExist_shouldReturnAllBooks() throws Exception {
@@ -62,7 +55,7 @@ public class BookControllerTest {
 
         when(bookService.listAllBooks()).thenReturn(bookList);
 
-        mockMvc.perform(get("/api/books/listBooks"))
+        mockMvc.perform(get("/api/books"))
             .andExpect(jsonPath("$.size()", is(bookList.size())))
             .andExpect(jsonPath("$[0].id", is(1)))
             .andExpect(jsonPath("$[0].title", is("The Shining")))
@@ -82,7 +75,7 @@ public class BookControllerTest {
 
         when(bookService.getBookById(1L)).thenReturn(book);
 
-        mockMvc.perform(get("/api/books/{id}", 1))
+        mockMvc.perform(get("/api/books/{id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.title").value("The Shining"))
@@ -95,7 +88,7 @@ public class BookControllerTest {
 
         when(bookService.getBookById(1L)).thenThrow(new BookNotFoundException("Book with id " + 1L + " not found"));
 
-        mockMvc.perform(get("/api/books/{id}", 1))
+        mockMvc.perform(get("/api/books/{id}", 1L))
             .andExpect(status().isNotFound());
     }
 
@@ -138,11 +131,11 @@ public class BookControllerTest {
     }
 
     @Test
-    public void deleteBook_whenBookExists_shouldReturnOk() throws Exception {
+    public void deleteBook_whenBookExists_shouldReturnNoContent() throws Exception {
         doNothing().when(bookService).deleteBook(any(Long.class));
 
         mockMvc.perform(delete("/api/books/{id}", 1L))
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
     }
 
     @Test

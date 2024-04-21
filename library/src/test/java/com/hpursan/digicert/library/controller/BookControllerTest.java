@@ -37,7 +37,7 @@ public class BookControllerTest {
     private BookService bookService;
 
     @Test
-    public void getAllBooks_whenNoneExist_shouldReturnNoContent() throws Exception {
+    public void getAllBooks_withNoSearchParams_andNoneExist_shouldReturnNoContent() throws Exception {
         when (bookService.listAllBooks()).thenReturn(new ArrayList<>());
 
         mockMvc.perform(get("/api/books"))
@@ -46,7 +46,7 @@ public class BookControllerTest {
 
 
     @Test
-    public void getAllBooks_whenBooksExist_shouldReturnAllBooks() throws Exception {
+    public void getAllBooks_withNoSearchParams_andBooksExist_shouldReturnAllBooks() throws Exception {
 
         Book book1 = new Book(1L, "The Shining", "Stephen King", "1234");
         Book book2 = new Book(2L, "IT", "Stephen King", "4567");
@@ -65,6 +65,72 @@ public class BookControllerTest {
             .andExpect(jsonPath("$[1].title", is("IT")))
             .andExpect(jsonPath("$[1].author", is("Stephen King")))
             .andExpect(jsonPath("$[1].isbn", is("4567")))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getAllBooks_withTitleSearchParams_andNoneExist_shouldReturnNoContent() throws Exception {
+
+        when(bookService.getBookByTitle(any(String.class))).thenReturn(new ArrayList<>());
+        when(bookService.listAllBooks()).thenReturn(new ArrayList<>());
+
+        mockMvc.perform(get("/api/books").param("title", "shining"))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void getAllBooks_withAuthorSearchParams_andNoneExist_shouldReturnNoContent() throws Exception {
+
+        when (bookService.getBookByAuthor(any(String.class))).thenReturn(new ArrayList<>());
+        when(bookService.listAllBooks()).thenReturn(new ArrayList<>());
+
+        mockMvc.perform(get("/api/books").param("author", "Stephen King"))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void getAllBooks_withTitleSearchParams_andBooksExist_shouldReturnAllBooks() throws Exception {
+
+        Book book1 = new Book(1L, "The Shining", "Stephen King", "1234");
+        Book book2 = new Book(2L, "Shining girls", "Lauren Beukes", "4567");
+
+        List<Book> bookList = new ArrayList<>(Arrays.asList(book1, book2));
+
+        when(bookService.getBookByTitle("shining")).thenReturn(bookList);
+
+        mockMvc.perform(get("/api/books").param("title","shining"))
+            .andExpect(jsonPath("$.size()", is(bookList.size())))
+            .andExpect(jsonPath("$[0].id", is(1)))
+            .andExpect(jsonPath("$[0].title", is("The Shining")))
+            .andExpect(jsonPath("$[0].author", is("Stephen King")))
+            .andExpect(jsonPath("$[0].isbn", is("1234")))
+            .andExpect(jsonPath("$[1].id", is(2)))
+            .andExpect(jsonPath("$[1].title", is("Shining girls")))
+            .andExpect(jsonPath("$[1].author", is("Lauren Beukes")))
+            .andExpect(jsonPath("$[1].isbn", is("4567")))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getAllBooks_withAuthorSearchParams_andBooksExist_shouldReturnAllBooks() throws Exception {
+
+        Book book1 = new Book(1L, "The Shining", "Stephen King", "1234");
+        Book book2 = new Book(2L, "IT", "Stephen King", "5891");
+
+        List<Book> bookList = new ArrayList<>(Arrays.asList(book1, book2));
+
+        when(bookService.getBookByAuthor("Stephen King")).thenReturn(bookList);
+
+        mockMvc.perform(get("/api/books").param("author", "Stephen King"))
+            .andExpect(jsonPath("$.size()", is(bookList.size())))
+            .andExpect(jsonPath("$[0].id", is(1)))
+            .andExpect(jsonPath("$[0].title", is("The Shining")))
+            .andExpect(jsonPath("$[0].author", is("Stephen King")))
+            .andExpect(jsonPath("$[0].isbn", is("1234")))
+            .andExpect(jsonPath("$[1].id", is(2)))
+            .andExpect(jsonPath("$[1].title", is("IT")))
+            .andExpect(jsonPath("$[1].author", is("Stephen King")))
+            .andExpect(jsonPath("$[1].isbn", is("5891")))
             .andExpect(status().isOk());
     }
 
@@ -90,6 +156,15 @@ public class BookControllerTest {
 
         mockMvc.perform(get("/api/books/{id}", 1L))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getBookById_unexpectedError_shouldThrowInternalServerError() throws Exception {
+
+        when(bookService.getBookById(1L)).thenThrow(new RuntimeException("Something unexpected happened"));
+
+        mockMvc.perform(get("/api/books/{id}", 1L))
+            .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -131,6 +206,18 @@ public class BookControllerTest {
     }
 
     @Test
+    public void updateBook_unexpectedError_shouldThrowInternalServerError() throws Exception {
+
+        when(bookService.updateBook(any(Long.class), any(Book.class)))
+            .thenThrow(new RuntimeException(("Something unexpected happened")));
+
+        mockMvc.perform(put("/api/books/{id}",1L)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"title\":\"The Shining\",\"author\":\"Stephen King\",\"isbn\":\"1234\"}"))
+            .andExpect(status().isInternalServerError());
+    }
+
+    @Test
     public void deleteBook_whenBookExists_shouldReturnNoContent() throws Exception {
         doNothing().when(bookService).deleteBook(any(Long.class));
 
@@ -145,5 +232,14 @@ public class BookControllerTest {
 
         mockMvc.perform(delete("/api/books/{id}",1L))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void deleteBook_whenUnexpectedException_shouldThrowInternalServerError() throws Exception {
+
+        doThrow(new RuntimeException("Something unexpected happened")).when(bookService).deleteBook(any(Long.class));
+
+        mockMvc.perform(delete("/api/books/{id}",1L))
+            .andExpect(status().isInternalServerError());
     }
 }

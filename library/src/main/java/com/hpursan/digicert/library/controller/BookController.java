@@ -3,10 +3,12 @@ package com.hpursan.digicert.library.controller;
 import com.hpursan.digicert.library.domain.Book;
 import com.hpursan.digicert.library.exception.BookNotFoundException;
 import com.hpursan.digicert.library.service.BookService;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.List;
 
@@ -17,6 +19,10 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
+    @Operation(summary = "List books", description = "An endpoint to get a list of books", responses = {
+        @ApiResponse(description = "Success", responseCode = "200"),
+        @ApiResponse(description = "No content", responseCode = "204")
+    })
     public ResponseEntity<List<Book>> getAllBooks(
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "author" ,required = false) String author) {
@@ -34,6 +40,11 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a book", description = "Get a book by it's id", responses = {
+        @ApiResponse(description = "A book with the given id was found", responseCode = "200"),
+        @ApiResponse(description = "A book with the given id was not found", responseCode = "404"),
+        @ApiResponse(description = "An unexpected error occurred", responseCode = "500")
+    })
     public ResponseEntity<Book> getBookById(@PathVariable("id") Long id){
         try {
             Book book = bookService.getBookById(id);
@@ -46,12 +57,20 @@ public class BookController {
     }
 
     @PostMapping("/")
+    @Operation(summary = "Add a book", description = "Create a new book", responses = {
+        @ApiResponse(description = "A new book was created", responseCode = "201")
+    })
     public ResponseEntity<Book> addBook(@RequestBody Book book){
         Book newBook = bookService.addBook(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(newBook);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a book", description = "Update a book with given details", responses = {
+        @ApiResponse(description = "The book was successfully updated", responseCode = "200"),
+        @ApiResponse(description = "A book with the given id was not found", responseCode = "404"),
+        @ApiResponse(description = "An unexpected error occurred", responseCode = "500")
+    })
     public ResponseEntity<Book> updateBook(@PathVariable("id") Long id, @RequestBody Book book){
         try {
             return ResponseEntity.ok(bookService.updateBook(id, book));
@@ -63,6 +82,11 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a book", description = "Delete a book with the given id", responses = {
+        @ApiResponse(description = "The book was successfully deleted", responseCode = "204"),
+        @ApiResponse(description = "A book with the given id was not found", responseCode = "404"),
+        @ApiResponse(description = "An unexpected error occurred", responseCode = "500")
+    })
     public ResponseEntity<Book> deleteBook(@PathVariable("id") Long id){
         try {
             bookService.deleteBook(id);

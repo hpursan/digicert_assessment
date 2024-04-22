@@ -114,8 +114,8 @@ public class BookControllerTest {
     @Test
     public void getAllBooks_withAuthorSearchParams_andBooksExist_shouldReturnAllBooks() throws Exception {
 
-        Book book1 = new Book(1L, "The Shining", "Stephen King", "1234");
-        Book book2 = new Book(2L, "IT", "Stephen King", "5891");
+        Book book1 = new Book(1L, "The Shining", "Stephen King", "9780385121675");
+        Book book2 = new Book(2L, "IT", "Stephen King", "9780385121001");
 
         List<Book> bookList = new ArrayList<>(Arrays.asList(book1, book2));
 
@@ -126,11 +126,11 @@ public class BookControllerTest {
             .andExpect(jsonPath("$[0].id", is(1)))
             .andExpect(jsonPath("$[0].title", is("The Shining")))
             .andExpect(jsonPath("$[0].author", is("Stephen King")))
-            .andExpect(jsonPath("$[0].isbn", is("1234")))
+            .andExpect(jsonPath("$[0].isbn", is("9780385121675")))
             .andExpect(jsonPath("$[1].id", is(2)))
             .andExpect(jsonPath("$[1].title", is("IT")))
             .andExpect(jsonPath("$[1].author", is("Stephen King")))
-            .andExpect(jsonPath("$[1].isbn", is("5891")))
+            .andExpect(jsonPath("$[1].isbn", is("9780385121001")))
             .andExpect(status().isOk());
     }
 
@@ -169,26 +169,26 @@ public class BookControllerTest {
 
     @Test
     public void addBook_shouldAddBookAndReturnCreated() throws Exception{
-        Book newlyCreatedBook = new Book(1L, "The Shining", "Stephen King", "1234");
+        Book newlyCreatedBook = new Book(1L, "The Shining", "Stephen King", "9780385121675");
 
         when(bookService.addBook(any(Book.class))).thenReturn(newlyCreatedBook);
 
         mockMvc.perform(post("/api/books/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\":\"The Shining\",\"author\":\"Stephen King\",\"isbn\":\"1234\"}"))
+                        .content("{\"title\":\"The Shining\",\"author\":\"Stephen King\",\"isbn\":\"9780385121675\"}"))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").value(1L));
     }
 
     @Test
     public void updateBook_whenBookExists_shouldReturnOk() throws Exception {
-        Book book = new Book(1L, "The Shining", "Stephen King", "1234");
+        Book book = new Book(1L, "The Shining", "Stephen King", "9780385121675");
 
         when(bookService.updateBook(any(Long.class), any(Book.class))).thenReturn(book);
 
         mockMvc.perform(put("/api/books/{id}",1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\":\"The Shining\",\"author\":\"Stephen King\",\"isbn\":\"1234\"}"))
+                        .content("{\"title\":\"The Shining\",\"author\":\"Stephen King\",\"isbn\":\"9780385121675\"}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.title").value("The Shining"));
     }
@@ -201,7 +201,7 @@ public class BookControllerTest {
 
         mockMvc.perform(put("/api/books/{id}",1L)
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"title\":\"The Shining\",\"author\":\"Stephen King\",\"isbn\":\"1234\"}"))
+            .content("{\"title\":\"The Shining\",\"author\":\"Stephen King\",\"isbn\":\"9780385121675\"}"))
             .andExpect(status().isNotFound());
     }
 
@@ -213,7 +213,7 @@ public class BookControllerTest {
 
         mockMvc.perform(put("/api/books/{id}",1L)
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"title\":\"The Shining\",\"author\":\"Stephen King\",\"isbn\":\"1234\"}"))
+            .content("{\"title\":\"The Shining\",\"author\":\"Stephen King\",\"isbn\":\"9780385121675\"}"))
             .andExpect(status().isInternalServerError());
     }
 

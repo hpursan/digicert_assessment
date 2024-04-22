@@ -11,7 +11,6 @@ import static org.mockito.Mockito.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +37,7 @@ public class BookServiceTest {
 
     @Test
     void getBookById_WhenBookExists_ShouldReturnGivenBook(){
-        Book book = new Book(1L, "ABC", "XYZ", "1234-5678");
+        Book book = new Book(1L, "ABC", "XYZ", "1234567890123");
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
         Book book1 = bookService.getBookById(1L);
         assertEquals(book, book1);
@@ -64,9 +63,9 @@ public class BookServiceTest {
 
     @Test
     void updateBook_WhenBookExists_ShouldReturnUpdatedBook(){
-        Book originalBook = new Book(1L, "The Shining", "Stephen King", "1234-5678");
+        Book originalBook = new Book(1L, "The Shining", "Stephen King", "1234567890123");
 
-        Book bookUpdates = new Book(1L, "IT", "Stephen King", "1234-5678");
+        Book bookUpdates = new Book(1L, "IT", "Stephen King", "1234567890124");
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(originalBook));
         when(bookRepository.save(any(Book.class))).thenReturn(originalBook);
@@ -78,7 +77,7 @@ public class BookServiceTest {
 
     @Test
     void deleteBook_WhenBookExists_ShouldCallDeleteById(){
-        Book book = new Book(1L, "ABC", "XYZ", "1234-5678");
+        Book book = new Book(1L, "ABC", "XYZ", "1234567890123");
         when(bookRepository.existsById(1L)).thenReturn(true);
         bookService.deleteBook(1L);
         verify(bookRepository).deleteById(1L);
@@ -94,8 +93,8 @@ public class BookServiceTest {
 
     @Test
     void getBookByTitle_whenExists_ShouldReturnGivenBooks(){
-        Book book1 = new Book(1L, "The Shining", "Stephen King", "1234-5678");
-        Book book2 = new Book(2L, "Shining Girls", "Lauren Beukes", "2343-3423");
+        Book book1 = new Book(1L, "The Shining", "Stephen King", "1234567890123");
+        Book book2 = new Book(2L, "Shining Girls", "Lauren Beukes", "1234567890246");
         when(bookRepository.findByTitleContainingIgnoreCase("Shining")).thenReturn(Arrays.asList(book1, book2));
         List<Book> books = bookService.getBookByTitle("Shining");
         assertEquals(2, books.size());
@@ -110,8 +109,8 @@ public class BookServiceTest {
 
     @Test
     void getBookByAuthor_whenExists_ShouldReturnGivenBooks(){
-        Book book1 = new Book(1L, "The Shining", "Stephen King", "1234-5678");
-        Book book2 = new Book(2L, "Carrie", "Stephen King", "2343-3423");
+        Book book1 = new Book(1L, "The Shining", "Stephen King", "1234567890123");
+        Book book2 = new Book(2L, "Carrie", "Stephen King", "1234567890456");
         when(bookRepository.findByAuthorContainingIgnoreCase("Stephen King")).thenReturn(Arrays.asList(book1, book2));
         List<Book> books = bookService.getBookByAuthor("Stephen King");
         assertEquals(2, books.size());

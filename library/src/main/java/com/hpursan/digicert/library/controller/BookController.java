@@ -4,6 +4,7 @@ import com.hpursan.digicert.library.domain.Book;
 import com.hpursan.digicert.library.exception.BookNotFoundException;
 import com.hpursan.digicert.library.service.BookService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,7 +61,7 @@ public class BookController {
     @Operation(summary = "Add a book", description = "Create a new book", responses = {
         @ApiResponse(description = "A new book was created", responseCode = "201")
     })
-    public ResponseEntity<Book> addBook(@RequestBody Book book){
+    public ResponseEntity<Book> addBook(@RequestBody @Valid Book book){
         Book newBook = bookService.addBook(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(newBook);
     }
@@ -71,7 +72,7 @@ public class BookController {
         @ApiResponse(description = "A book with the given id was not found", responseCode = "404"),
         @ApiResponse(description = "An unexpected error occurred", responseCode = "500")
     })
-    public ResponseEntity<Book> updateBook(@PathVariable("id") Long id, @RequestBody Book book){
+    public ResponseEntity<Book> updateBook(@PathVariable("id") Long id, @RequestBody @Valid Book book){
         try {
             return ResponseEntity.ok(bookService.updateBook(id, book));
         } catch (BookNotFoundException bex) {
